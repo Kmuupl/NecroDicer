@@ -1,0 +1,72 @@
+using UnityEngine;
+
+public class Enemy : MonoBehaviour
+{
+    public int maxHP = 10;
+    public int currentHP;
+
+    public Armor armor = new();
+
+    void Start()
+    {
+        currentHP = maxHP;
+        SetupTestArmor(); //TEST
+    }
+
+    public void TakeDamage(int damage)
+    {
+        currentHP -= damage;
+        Debug.Log($"Враг получил {damage} урона. Текущее HP: {currentHP}/{maxHP}");
+
+        if (currentHP <= 0)
+        {
+            Die();
+        }
+    }
+
+    void Die()
+    {
+        Debug.Log("Враг побежден!");
+        Destroy(gameObject);
+    }
+
+    //тестовый метод для настройки брони врага
+    void SetupTestArmor()
+    {
+        armor.slots.Add(new ArmorSlot
+        {
+            condition = new ArmorCondition
+            {
+                requiredValue = 1,
+                mustBeGreater = false
+            }
+        });
+
+        armor.slots.Add(new ArmorSlot
+        {
+            condition = new ArmorCondition
+            {
+                requiredValue = 4,
+                mustBeGreater = true
+            }
+        });
+
+        //Debug.Log("Тестовая броня врага: =1, >4.");
+    }
+    
+void Update()
+{
+    if (Input.GetMouseButtonDown(0))
+    {
+        Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Collider2D hit = Physics2D.OverlapPoint(mousePos);
+
+        if (hit != null && hit.gameObject == gameObject)
+        {
+            CombatSystem combatSystem = FindObjectOfType<CombatSystem>();
+            if (combatSystem != null)
+                combatSystem.StartBattle(this);
+        }
+    }
+}
+}
