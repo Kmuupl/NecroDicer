@@ -90,12 +90,16 @@ public class DiceBag
         discard.AddRange(buttleField);
         buttleField.Clear();
         battleFieldRolls.Clear();
+
+        discard.AddRange(tray);
+        tray.Clear();
+
+        Debug.Log($"[EndTurn] кубы с поля боя и трея перемещены в сброс. Сброс теперь содержит {discard.Count} кубов.");
     }
 
     //со сброса в мешок:
     public void ReshuffleDiscard()
     {
-        Debug.Log("Пул пуст - сброс возвращается в пул :)");
         pool.AddRange(discard);
         discard.Clear();
     }

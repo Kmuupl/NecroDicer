@@ -137,6 +137,7 @@ public class CombatSystem : MonoBehaviour
         {
             diceBag.buttleField.Remove(selectedDice);
             diceBag.battleFieldRolls.Remove(selectedDice);
+            Debug.Log($"Куб {selectedDice.id} со значением {rolledValue} вставлен в слот {slotIndex} брони врага.");
             BattleLogger.Add($"Куб {selectedDice.id} ({rolledValue}) вставлен в слот {slotIndex}.");
             BattleLogger.Add($"Заполнено слотов: {targetEnemy.armor.FilledSlotsCount()}/{targetEnemy.armor.slots.Count}");
             selectedDice = null; // сбрасываем выбор после вставки
@@ -155,7 +156,18 @@ public class CombatSystem : MonoBehaviour
         BattleLogger.Add($"Урон: {damage}");
 
         if (damage > 0)
+        {
             targetEnemy.TakeDamage(damage);
+
+            if (targetEnemy.currentHP <= 0)
+            {
+                BattleLogger.EndTurn();
+                Debug.Log("Враг побежден! Бой окончен.");
+                targetEnemy = null;
+                return;
+            }
+        }
+
         else
             BattleLogger.Add("Урон не нанесён — ни один слот не заполнен.");
 
@@ -168,18 +180,9 @@ public class CombatSystem : MonoBehaviour
         diceBag.buttleField.Clear();
         diceBag.battleFieldRolls.Clear();
 
-        BattleLogger.EndTurn();
-
-        // враг умер — заканчиваем бой
-        if (targetEnemy == null || targetEnemy.gameObject == null || targetEnemy.currentHP <= 0)
-        {
-            Debug.Log("Бой окончен!");
-            targetEnemy = null;
-            return;
-        }
-
         // враг жив — игрок может атаковать снова
         BattleLogger.Add("Можно атаковать снова или нажать H для конца хода.");
+        BattleLogger.EndTurn();
     }
 
     // конец хода — кубы с поля боя в сброс
@@ -195,8 +198,17 @@ public class CombatSystem : MonoBehaviour
             return;
         }
 
-        // TODO: здесь будет ход врага
-        Debug.Log("Ход врага... (пока пропускаем)");
+        // ход врага
+        Debug.Log("Ход врага...");
+        targetEnemy.Attack();
+
+        if (PlayerHealth.Instance == null || PlayerHealth.Instance.currentHP <= 0)
+        {
+            Debug.Log("Игрок погиб! Бой окончен.");
+            targetEnemy = null;
+            return;
+        }
+
         StartTurn();
     }
 
@@ -217,7 +229,6 @@ public class CombatSystem : MonoBehaviour
     // конец хода игрока — передаём ход врагу
     void PlayerEndTurn()
     {
-        BattleLogger.StartTurn();
         BattleLogger.Add("Конец хода игрока.");
         BattleLogger.EndTurn();
         EndTurn();

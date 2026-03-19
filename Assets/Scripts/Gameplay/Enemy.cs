@@ -5,6 +5,10 @@ public class Enemy : MonoBehaviour
     public int maxHP = 10;
     public int currentHP;
 
+    public int attackDamage = 3;
+
+    public int speed = 5;
+
     public Armor armor = new();
 
     void Start()
@@ -53,20 +57,32 @@ public class Enemy : MonoBehaviour
 
         //Debug.Log("Тестовая броня врага: =1, >4.");
     }
-    
-void Update()
-{
-    if (Input.GetMouseButtonDown(0))
-    {
-        Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        Collider2D hit = Physics2D.OverlapPoint(mousePos);
 
-        if (hit != null && hit.gameObject == gameObject)
+    public void Attack()
+    {
+        if (PlayerHealth.Instance == null)
         {
-            CombatSystem combatSystem = FindObjectOfType<CombatSystem>();
-            if (combatSystem != null)
-                combatSystem.StartBattle(this);
+            Debug.LogError("PlayerHealth instance not found!");
+            return;
+        }
+
+        Debug.Log($"Враг атакует игрока, нанося {attackDamage} урона.");
+        PlayerHealth.Instance.TakeDamage(attackDamage);
+    }
+
+    void Update()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            Collider2D hit = Physics2D.OverlapPoint(mousePos);
+
+            if (hit != null && hit.gameObject == gameObject)
+            {
+                CombatSystem combatSystem = FindObjectOfType<CombatSystem>();
+                if (combatSystem != null)
+                    combatSystem.StartBattle(this);
+            }
         }
     }
-}
 }

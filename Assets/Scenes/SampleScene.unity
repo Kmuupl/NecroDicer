@@ -287,6 +287,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Enemy
   maxHP: 10
   currentHP: 0
+  attackDamage: 3
+  speed: 5
 --- !u!58 &93644000
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -602,6 +604,7 @@ GameObject:
   - component: {fileID: 1068335489}
   - component: {fileID: 1068335493}
   - component: {fileID: 1068335494}
+  - component: {fileID: 1068335495}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -784,6 +787,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerAttackTest
   weaponDamage: 10
+--- !u!114 &1068335495
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1068335488}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ced2dd84efe93af43bd416df6ccca9f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerHealth
+  maxHP: 30
+  currentHP: 0
 --- !u!1 &1394581254
 GameObject:
   m_ObjectHideFlags: 0
