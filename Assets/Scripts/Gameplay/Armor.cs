@@ -93,18 +93,23 @@ public class Armor
     }
 
     //урон по заполненным слотам
+    public float[] damagePercents;
+
+    public void InitDefaultCurve()
+    {
+        damagePercents = new float[slots.Count + 1];
+        for (int i = 0; i <= slots.Count; i++)
+        {
+            damagePercents[i] = i / (float)slots.Count; //линейная кривая от 0% до 100%
+        }
+    }
+
     public int CalcDamage(int weaponDamage)
     {
         int filled = FilledSlotsCount();
-        int total = slots.Count;
-
-        //нет урона
-        if (filled == 0) return 0;
-
-        //полный урон
-        if (filled == total) return weaponDamage;
-
-        //частичный урон
-        return Mathf.RoundToInt(weaponDamage * (float)filled / total);
+        if (damagePercents == null || damagePercents.Length == 0)
+            InitDefaultCurve();
+        float percent = damagePercents[filled];
+        return Mathf.RoundToInt(weaponDamage * percent);
     }
 }

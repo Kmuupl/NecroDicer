@@ -1,12 +1,13 @@
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.Lumin;
 
 public class CombatSystem : MonoBehaviour
 {
 
     private Dice selectedDice = null;
     // временный урон оружия (потом заменим на реальное оружие)
-    public int weaponDamage = 10;
+    public Weapon weapon;
 
     // враг которого атакуем в этом раунде
     // null = бой ещё не начался или враг не выбран
@@ -150,10 +151,9 @@ public class CombatSystem : MonoBehaviour
     {
         if (targetEnemy == null || targetEnemy.gameObject == null) return;
 
-        int damage = targetEnemy.armor.CalcDamage(weaponDamage);
-
-        BattleLogger.Add($"Атака! Заполнено {targetEnemy.armor.FilledSlotsCount()} из {targetEnemy.armor.slots.Count} слотов.");
-        BattleLogger.Add($"Урон: {damage}");
+        int weaponRoll = weapon != null ? weapon.RollDamage() : 5;
+        int damage = targetEnemy.armor.CalcDamage(weaponRoll);
+        BattleLogger.Add($"Атака! Урон оружия: {weaponRoll}. Заполнено {targetEnemy.armor.FilledSlotsCount()} из {targetEnemy.armor.slots.Count} слотов.");
 
         if (damage > 0)
         {
