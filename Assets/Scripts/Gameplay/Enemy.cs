@@ -4,16 +4,15 @@ public class Enemy : MonoBehaviour
 {
     public int maxHP = 10;
     public int currentHP;
-
     public int attackDamage = 3;
-
     public int speed = 5;
-
     public Armor armor = new();
+    public HPBar hpBar;
 
     void Start()
     {
         currentHP = maxHP;
+        hpBar?.UpdateBar(currentHP, maxHP);
         SetupTestArmor(); //TEST
     }
 
@@ -26,6 +25,8 @@ public class Enemy : MonoBehaviour
         {
             Die();
         }
+
+        hpBar?.UpdateBar(currentHP, maxHP);
     }
 
     void Die()

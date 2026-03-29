@@ -4,10 +4,12 @@ public class PlayerHealth : MonoBehaviour
 {
     public int maxHP = 30;
     public int currentHP;
+    public HPBar hpBar;
 
     void Start()
     {
         currentHP = maxHP;
+        hpBar?.UpdateBar(currentHP, maxHP);
         Debug.Log($"Player HP: {currentHP}/{maxHP}");
     }
 
@@ -23,6 +25,8 @@ public class PlayerHealth : MonoBehaviour
         {
             Die();
         }
+
+        hpBar?.UpdateBar(currentHP, maxHP);
     }
 
     public void Heal(int amount)
@@ -32,6 +36,8 @@ public class PlayerHealth : MonoBehaviour
         currentHP += amount;
         currentHP = Mathf.Min(currentHP, maxHP);
         Debug.Log($"Player heals {amount} HP. HP: {currentHP}/{maxHP}");
+
+        hpBar?.UpdateBar(currentHP, maxHP);
     }
 
     void Die()

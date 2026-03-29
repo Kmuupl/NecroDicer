@@ -4,15 +4,13 @@ using UnityEngine.Lumin;
 
 public class CombatSystem : MonoBehaviour
 {
-
+    public GameObject battlePanel; // панель с UI боя
     private Dice selectedDice = null;
     // временный урон оружия (потом заменим на реальное оружие)
     public Weapon weapon;
-
     // враг которого атакуем в этом раунде
     // null = бой ещё не начался или враг не выбран
     private Enemy targetEnemy = null;
-
     // ссылка на мешок
     private DiceBag diceBag => PlayerDiceManager.Instance.diceBag;
 
@@ -59,6 +57,7 @@ public class CombatSystem : MonoBehaviour
             return;
         }
         targetEnemy = enemy;
+        battlePanel?.SetActive(true);
         Debug.Log($"Бой начался! Враг: {enemy.name}");
         StartTurn();
     }
@@ -204,6 +203,7 @@ public class CombatSystem : MonoBehaviour
 
         if (PlayerHealth.Instance == null || PlayerHealth.Instance.currentHP <= 0)
         {
+            battlePanel?.SetActive(false);
             Debug.Log("Игрок погиб! Бой окончен.");
             targetEnemy = null;
             return;
