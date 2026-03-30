@@ -13,6 +13,7 @@ public class CombatSystem : MonoBehaviour
     private Enemy targetEnemy = null;
     // ссылка на мешок
     private DiceBag diceBag => PlayerDiceManager.Instance.diceBag;
+    public HPBar enemyHPBar;
 
     void Update()
     {
@@ -58,6 +59,8 @@ public class CombatSystem : MonoBehaviour
         }
         targetEnemy = enemy;
         battlePanel?.SetActive(true);
+        enemy.hpBar = enemyHPBar;
+        enemyHPBar?.UpdateBar(enemy.currentHP, enemy.maxHP);
         Debug.Log($"Бой начался! Враг: {enemy.name}");
         StartTurn();
     }
