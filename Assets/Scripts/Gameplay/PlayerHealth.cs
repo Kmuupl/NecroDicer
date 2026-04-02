@@ -5,6 +5,7 @@ public class PlayerHealth : MonoBehaviour
     public int maxHP = 30;
     public int currentHP;
     public HPBar hpBar;
+    public bool IsDead() => currentHP <= 0;
 
     void Start()
     {

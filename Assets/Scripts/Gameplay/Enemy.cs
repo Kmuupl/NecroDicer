@@ -8,6 +8,7 @@ public class Enemy : MonoBehaviour
     public int speed = 5;
     public Armor armor = new();
     public HPBar hpBar;
+    public bool IsDead() => currentHP <= 0;
 
     void Start()
     {
@@ -61,16 +62,11 @@ public class Enemy : MonoBehaviour
         //Debug.Log("Тестовая броня врага: =1, >4.");
     }
 
-    public void Attack()
+    // В Enemy.cs — замени Attack():
+    public int Attack()
     {
-        if (PlayerHealth.Instance == null)
-        {
-            Debug.LogError("PlayerHealth instance not found!");
-            return;
-        }
-
         Debug.Log($"Враг атакует игрока, нанося {attackDamage} урона.");
-        PlayerHealth.Instance.TakeDamage(attackDamage);
+        return attackDamage;
     }
 
     void Update()
@@ -80,11 +76,10 @@ public class Enemy : MonoBehaviour
             Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             Collider2D hit = Physics2D.OverlapPoint(mousePos);
 
+            // В Enemy.cs — замени внутри Update():
             if (hit != null && hit.gameObject == gameObject)
             {
-                CombatSystem combatSystem = FindObjectOfType<CombatSystem>();
-                if (combatSystem != null)
-                    combatSystem.StartBattle(this);
+                BattleManager.Instance?.StartBattle(this);
             }
         }
     }

@@ -149,9 +149,10 @@ public class CombatSystem : MonoBehaviour
 
     // атаковать — наносим урон, кубы с поля и брони в сброс
     // НО ход не заканчивается — игрок может атаковать снова
-    void ResolveAttack()
+    // В CombatSystem.cs — найди void ResolveAttack() и замени сигнатуру:
+    public int ResolveAttack()
     {
-        if (targetEnemy == null || targetEnemy.gameObject == null) return;
+        if (targetEnemy == null || targetEnemy.gameObject == null) return 0;
 
         int weaponRoll = weapon != null ? weapon.RollDamage() : 5;
         int damage = targetEnemy.armor.CalcDamage(weaponRoll);
@@ -160,31 +161,24 @@ public class CombatSystem : MonoBehaviour
         if (damage > 0)
         {
             targetEnemy.TakeDamage(damage);
-
-            if (targetEnemy.currentHP <= 0)
-            {
-                BattleLogger.EndTurn();
-                Debug.Log("Враг побежден! Бой окончен.");
-                targetEnemy = null;
-                return;
-            }
+        }
+        else
+        {
+            BattleLogger.Add("Урон не нанесён — ни один слот не заполнен.");
+            damage = 0;
         }
 
-        else
-            BattleLogger.Add("Урон не нанесён — ни один слот не заполнен.");
-
-        // очищаем броню и поле боя после атаки
         if (targetEnemy != null && targetEnemy.currentHP > 0)
             targetEnemy.armor.ClearAll();
 
-        // кубы с поля боя → в сброс
         selectedDice = null;
         diceBag.buttleField.Clear();
         diceBag.battleFieldRolls.Clear();
 
-        // враг жив — игрок может атаковать снова
         BattleLogger.Add("Можно атаковать снова или нажать H для конца хода.");
         BattleLogger.EndTurn();
+
+        return damage;
     }
 
     // конец хода — кубы с поля боя в сброс
@@ -235,5 +229,11 @@ public class CombatSystem : MonoBehaviour
         BattleLogger.Add("Конец хода игрока.");
         BattleLogger.EndTurn();
         EndTurn();
+    }
+    public void ClearBattlefield()
+    {
+        selectedDice = null;
+        diceBag.buttleField.Clear();
+        diceBag.battleFieldRolls.Clear();
     }
 }
