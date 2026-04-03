@@ -43,7 +43,13 @@ public class BattleManager : MonoBehaviour
     private void StartPlayerTurn()
     {
         State = BattleState.PlayerTurn;
+
+        // временно: перекидываем всё из мешка в пул
+        foreach (var dice in diceBag.bag.ToArray())
+            diceBag.AddToPool(dice);
+
         diceBag.DrawToTray();          // пул → трей
+        Debug.Log($"StartPlayerTurn: кубов в трее = {diceBag.tray.Count}");
         OnPlayerTurnStart?.Invoke();
     }
 
