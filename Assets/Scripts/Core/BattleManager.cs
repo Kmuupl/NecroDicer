@@ -21,7 +21,7 @@ public class BattleManager : MonoBehaviour
 
     // ── Ссылки ──────────────────────────────────────────
     [SerializeField] private CombatSystem combatSystem;
-    [SerializeField] private DiceBag diceBag;
+    private DiceBag diceBag => PlayerDiceManager.Instance.diceBag;
 
     void Awake()
     {

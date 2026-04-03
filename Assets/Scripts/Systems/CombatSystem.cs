@@ -33,8 +33,8 @@ public class CombatSystem : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Alpha3)) TryFillArmorSlot(2);
 
         // Space — атаковать (конец раунда)
-        if (Input.GetKeyDown(KeyCode.Space))
-            ResolveAttack();
+//        if (Input.GetKeyDown(KeyCode.Space))
+//            ResolveAttack();
 
         // Z/X/C/V/B — выбрать куб с поля боя по индексу
         if (Input.GetKeyDown(KeyCode.Z)) SelectDiceFromBattlefield(0);
@@ -44,8 +44,8 @@ public class CombatSystem : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.B)) SelectDiceFromBattlefield(4);
 
         // H — конец хода игрока → ход врага
-        if (Input.GetKeyDown(KeyCode.H))
-            PlayerEndTurn();
+//        if (Input.GetKeyDown(KeyCode.H))
+//            PlayerEndTurn();
     }
 
     // вызывается когда игрок нажимает на врага
