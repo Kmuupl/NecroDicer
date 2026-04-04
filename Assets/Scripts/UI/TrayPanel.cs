@@ -7,6 +7,7 @@ public class TrayPanel : MonoBehaviour
 {
     [SerializeField] private GameObject diceButtonPrefab;
     [SerializeField] private float slideInDuration = 0.15f;
+    [SerializeField] private BattlefieldPanel battlefieldPanel;
     private DiceBag diceBag => PlayerDiceManager.Instance.diceBag;
     private List<GameObject> spawnedButtons = new();
 
@@ -131,6 +132,7 @@ public class TrayPanel : MonoBehaviour
     {
         if (!diceBag.tray.Contains(dice)) return;
         diceBag.ThrowToButtleField(dice);
+        battlefieldPanel?.AddDice(dice, btn.transform.position);
         Destroy(btn);
         spawnedButtons.Remove(btn);
     }
