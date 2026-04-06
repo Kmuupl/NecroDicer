@@ -21,6 +21,7 @@ public class BattleManager : MonoBehaviour
 
     // ── Ссылки ──────────────────────────────────────────
     [SerializeField] private CombatSystem combatSystem;
+    [SerializeField] private EnemyBattleView enemyBattleView;
     private DiceBag diceBag => PlayerDiceManager.Instance.diceBag;
 
     void Awake()
@@ -35,6 +36,7 @@ public class BattleManager : MonoBehaviour
         if (State != BattleState.Idle) return;
         CurrentEnemy = enemy;
         State = BattleState.PlayerTurn;
+        EnemyBattleView.Instantiate(enemy);
         OnBattleStart?.Invoke();
         StartPlayerTurn();
     }
@@ -99,6 +101,7 @@ public class BattleManager : MonoBehaviour
     private void EndBattle(bool playerWon)
     {
         State = BattleState.BattleEnd;
+        enemyBattleView.Cleanup();
         OnBattleEnd?.Invoke(playerWon);
         CurrentEnemy = null;
         State = BattleState.Idle;

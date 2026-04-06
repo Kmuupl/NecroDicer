@@ -290,6 +290,7 @@ MonoBehaviour:
   attackDamage: 3
   speed: 5
   hpBar: {fileID: 627056934}
+  data: {fileID: 11400000, guid: eb808d89929501e40ae7dd10b843436b, type: 2}
 --- !u!58 &93644000
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -1508,6 +1509,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BattleManager
   combatSystem: {fileID: 1068335494}
+  enemyBattleView: {fileID: 1897992023}
 --- !u!4 &1106780145
 Transform:
   m_ObjectHideFlags: 0
@@ -2546,6 +2548,7 @@ GameObject:
   - component: {fileID: 1897992020}
   - component: {fileID: 1897992022}
   - component: {fileID: 1897992021}
+  - component: {fileID: 1897992023}
   m_Layer: 5
   m_Name: EnemyImage
   m_TagString: Untagged
@@ -2610,6 +2613,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1897992019}
   m_CullTransparentMesh: 1
+--- !u!114 &1897992023
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1897992019}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57d94cafd7a35624280dd937dac5b2b3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyBattleView
+  icon: {fileID: 1897992021}
+  hpBar: {fileID: 627056934}
 --- !u!1 &1904156186
 GameObject:
   m_ObjectHideFlags: 0

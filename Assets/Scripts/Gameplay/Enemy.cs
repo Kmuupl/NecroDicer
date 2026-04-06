@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class Enemy : MonoBehaviour
@@ -9,24 +10,32 @@ public class Enemy : MonoBehaviour
     public Armor armor = new();
     public HPBar hpBar;
     public bool IsDead() => currentHP <= 0;
+    public EnemyData data;
+
+
 
     void Start()
     {
+        if (data != null)
+        {
+            maxHP = data.maxHP;
+            attackDamage = data.attackDamage;
+            speed = data.speed;
+        }
+
         currentHP = maxHP;
         hpBar?.UpdateBar(currentHP, maxHP);
-        SetupTestArmor(); //TEST
+        SetupTestArmor();
     }
+
+    public event Action<int, int> OnHPChanged; // current, max
 
     public void TakeDamage(int damage)
     {
         currentHP -= damage;
-        Debug.Log($"Враг получил {damage} урона. Текущее HP: {currentHP}/{maxHP}");
-
-        if (currentHP <= 0)
-        {
-            Die();
-        }
-
+        currentHP = Mathf.Max(currentHP, 0);
+        OnHPChanged?.Invoke(currentHP, maxHP);
+        if (currentHP <= 0) Die();
         hpBar?.UpdateBar(currentHP, maxHP);
     }
 
