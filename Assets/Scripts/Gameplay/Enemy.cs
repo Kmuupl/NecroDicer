@@ -21,11 +21,15 @@ public class Enemy : MonoBehaviour
             maxHP = data.maxHP;
             attackDamage = data.attackDamage;
             speed = data.speed;
+
+            if (data.armorData != null)
+                armor = new Armor(data.armorData);
+            else
+                armor = new Armor(); // пустая броня на случай если не задана
         }
 
         currentHP = maxHP;
         hpBar?.UpdateBar(currentHP, maxHP);
-        SetupTestArmor();
     }
 
     public event Action<int, int> OnHPChanged; // current, max
@@ -43,32 +47,6 @@ public class Enemy : MonoBehaviour
     {
         Debug.Log("Враг побежден!");
         Destroy(gameObject);
-    }
-
-    //тестовый метод для настройки брони врага
-    void SetupTestArmor()
-    {
-        armor.slots.Add(new ArmorSlot
-        {
-            condition = new ArmorCondition
-            {
-                requiredValue = 1,
-                mustBeGreater = false
-            }
-        });
-
-        armor.slots.Add(new ArmorSlot
-        {
-            condition = new ArmorCondition
-            {
-                requiredValue = 4,
-                mustBeGreater = true
-            }
-        });
-
-        armor.damagePercents = new float[] { 0f, 0.6f, 1f }; // 0% урона, если 0 слотов заполнено, 60% урона при 1 заполненном слоте, 100% урона при 2 заполненных слотах
-
-        //Debug.Log("Тестовая броня врага: =1, >4.");
     }
 
     // В Enemy.cs — замени Attack():

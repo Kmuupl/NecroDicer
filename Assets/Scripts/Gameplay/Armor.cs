@@ -1,13 +1,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-//условие слота брони
 public class ArmorCondition
 {
-    public int requiredValue; //нужное значение
-    public bool mustBeGreater; //   больше или равно нужного значения
+    public int requiredValue;
+    public bool mustBeGreater;
 
-    //проверка куба на условие слота брони
     public bool Check(int diceValue)
     {
         if (mustBeGreater)
@@ -17,17 +15,13 @@ public class ArmorCondition
     }
 }
 
-//один слот брони
 public class ArmorSlot
 {
-    public ArmorCondition condition; //что требует слот
-    public Dice filledBy = null; //какой куб вставлен
+    public ArmorCondition condition;
+    public Dice filledBy = null;
 
-    //слот заполнен, если есть куб
     public bool IsFilled => filledBy != null;
 
-    //попытка вставить куб
-    //rolledValue - значение, которое выпало на кубе
     public bool TryFill(Dice dice, int rolledValue)
     {
         if (IsFilled)
@@ -46,19 +40,40 @@ public class ArmorSlot
         return true;
     }
 
-    //очистить слот (если нужно будет сбросить броню)
     public void Clear()
     {
         filledBy = null;
     }
 }
 
-//броня - набор слотов
 public class Armor
 {
     public List<ArmorSlot> slots = new();
+    public float[] damagePercents;
 
-    //слоты заполнены - броян пробита
+    // пустой конструктор — для совместимости
+    public Armor() { }
+
+    // конструктор из данных — вот он ВНУТРИ класса
+    public Armor(ArmorData data)
+    {
+        slots = new List<ArmorSlot>();
+
+        foreach (var condData in data.conditions)
+        {
+            slots.Add(new ArmorSlot
+            {
+                condition = new ArmorCondition
+                {
+                    requiredValue = condData.requiredValue,
+                    mustBeGreater = condData.mustBeGreater
+                }
+            });
+        }
+
+        damagePercents = data.damagePercents;
+    }
+
     public bool IsFullyPierced()
     {
         foreach (var slot in slots)
@@ -66,7 +81,6 @@ public class Armor
         return true;
     }
 
-    //попытка вставить куб в конкретный слот по индексу
     public bool TryFillSlot(int slotIndex, Dice dice, int rolledValue)
     {
         if (slotIndex < 0 || slotIndex >= slots.Count)
@@ -77,7 +91,6 @@ public class Armor
         return slots[slotIndex].TryFill(dice, rolledValue);
     }
 
-    //очистить все слоты
     public void ClearAll()
     {
         foreach (var slot in slots)
@@ -92,16 +105,11 @@ public class Armor
         return count;
     }
 
-    //урон по заполненным слотам
-    public float[] damagePercents;
-
     public void InitDefaultCurve()
     {
         damagePercents = new float[slots.Count + 1];
         for (int i = 0; i <= slots.Count; i++)
-        {
-            damagePercents[i] = i / (float)slots.Count; //линейная кривая от 0% до 100%
-        }
+            damagePercents[i] = i / (float)slots.Count;
     }
 
     public int CalcDamage(int weaponDamage)

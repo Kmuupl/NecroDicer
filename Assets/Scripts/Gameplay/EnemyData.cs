@@ -10,4 +10,5 @@ public class EnemyData : ScriptableObject
     public int attackDamage;
     public int speed;
     // броня добавим отдельно
+    public ArmorData armorData;
 }
