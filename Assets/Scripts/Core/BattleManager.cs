@@ -15,13 +15,14 @@ public class BattleManager : MonoBehaviour
     public event Action OnBattleStart;
     public event Action OnPlayerTurnStart;
     public event Action OnEnemyTurnStart;
-    public event Action<int> OnEnemyTookDamage;   // int = урон
-    public event Action<int> OnPlayerTookDamage;  // int = урон
-    public event Action<bool> OnBattleEnd;         // bool = победа игрока
+    public event Action<int> OnEnemyTookDamage;
+    public event Action<int> OnPlayerTookDamage;
+    public event Action<bool> OnBattleEnd;
 
     // ── Ссылки ──────────────────────────────────────────
     [SerializeField] private CombatSystem combatSystem;
     [SerializeField] private EnemyBattleView enemyBattleView;
+    [SerializeField] private ArmorPanel armorPanel;  // ← добавили
     private DiceBag diceBag => PlayerDiceManager.Instance.diceBag;
 
     void Awake()
@@ -37,6 +38,7 @@ public class BattleManager : MonoBehaviour
         CurrentEnemy = enemy;
         State = BattleState.PlayerTurn;
         EnemyBattleView.Instantiate(enemy);
+        armorPanel.Init(enemy.armor);  // ← добавили
         OnBattleStart?.Invoke();
         StartPlayerTurn();
     }
@@ -46,11 +48,10 @@ public class BattleManager : MonoBehaviour
     {
         State = BattleState.PlayerTurn;
 
-        // временно: перекидываем всё из мешка в пул
         foreach (var dice in diceBag.bag.ToArray())
             diceBag.AddToPool(dice);
 
-        diceBag.DrawToTray();          // пул → трей
+        diceBag.DrawToTray();
         Debug.Log($"StartPlayerTurn: кубов в трее = {diceBag.tray.Count}");
         OnPlayerTurnStart?.Invoke();
     }
@@ -67,14 +68,13 @@ public class BattleManager : MonoBehaviour
             EndBattle(playerWon: true);
             return;
         }
-        // После атаки игрок может атаковать снова — стейт не меняем
     }
 
     // Вызывается кнопкой End Turn в BattleUI
     public void PlayerEndTurn()
     {
         if (State != BattleState.PlayerTurn) return;
-        combatSystem.ClearBattlefield();   // кубы без применения → сброс
+        combatSystem.ClearBattlefield();
         StartEnemyTurn();
     }
 
@@ -102,6 +102,7 @@ public class BattleManager : MonoBehaviour
     {
         State = BattleState.BattleEnd;
         enemyBattleView.Cleanup();
+        armorPanel.Init(null);  // ← чистим панель после боя
         OnBattleEnd?.Invoke(playerWon);
         CurrentEnemy = null;
         State = BattleState.Idle;

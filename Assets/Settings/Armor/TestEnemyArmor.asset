@@ -19,6 +19,8 @@ MonoBehaviour:
     mustBeGreater: 1
   - requiredValue: 4
     mustBeGreater: 0
+  - requiredValue: 4
+    mustBeGreater: 1
   damagePercents:
   - 0.1
   - 0.6
