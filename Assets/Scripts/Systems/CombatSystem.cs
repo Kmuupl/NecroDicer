@@ -33,8 +33,8 @@ public class CombatSystem : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Alpha3)) TryFillArmorSlot(2);
 
         // Space — атаковать (конец раунда)
-//        if (Input.GetKeyDown(KeyCode.Space))
-//            ResolveAttack();
+        //        if (Input.GetKeyDown(KeyCode.Space))
+        //            ResolveAttack();
 
         // Z/X/C/V/B — выбрать куб с поля боя по индексу
         if (Input.GetKeyDown(KeyCode.Z)) SelectDiceFromBattlefield(0);
@@ -44,9 +44,10 @@ public class CombatSystem : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.B)) SelectDiceFromBattlefield(4);
 
         // H — конец хода игрока → ход врага
-//        if (Input.GetKeyDown(KeyCode.H))
-//            PlayerEndTurn();
+        //        if (Input.GetKeyDown(KeyCode.H))
+        //            PlayerEndTurn();
     }
+
 
     // вызывается когда игрок нажимает на врага
     public void StartBattle(Enemy enemy)
@@ -63,6 +64,11 @@ public class CombatSystem : MonoBehaviour
         enemyHPBar?.UpdateBar(enemy.currentHP, enemy.maxHP);
         Debug.Log($"Бой начался! Враг: {enemy.name}");
         StartTurn();
+    }
+
+    public void SetTarget(Enemy enemy)
+    {
+        targetEnemy = enemy;
     }
 
     // начало хода
@@ -173,6 +179,7 @@ public class CombatSystem : MonoBehaviour
 
         selectedDice = null;
         diceBag.buttleField.Clear();
+        BattleManager.Instance.NotifyBattlefieldClear();
         diceBag.battleFieldRolls.Clear();
 
         BattleLogger.Add("Можно атаковать снова или нажать H для конца хода.");
@@ -235,5 +242,6 @@ public class CombatSystem : MonoBehaviour
         selectedDice = null;
         diceBag.buttleField.Clear();
         diceBag.battleFieldRolls.Clear();
+        BattleManager.Instance.NotifyBattlefieldClear();
     }
 }

@@ -41,8 +41,6 @@ public class TrayPanel : MonoBehaviour
         {
             var btn = Instantiate(diceButtonPrefab, transform);
 
-            //            btn.transform.SetAsFirstSibling();
-
             var label = btn.GetComponentInChildren<Text>();
             var img = btn.GetComponent<Image>();
             if (img != null) img.sprite = GetSpriteForDice(dice);
@@ -90,43 +88,6 @@ public class TrayPanel : MonoBehaviour
 
         rt.localPosition = targetPos;
     }
-
-    /*     private IEnumerator ScaleIn(GameObject obj)
-        {
-            float t = 0f;
-
-            while (t < 1f)
-            {
-                t += Time.deltaTime / slideInDuration;
-
-                obj.transform.localScale = Vector3.Lerp(
-                    Vector3.zero,
-                    Vector3.one,
-                    Mathf.SmoothStep(0f, 1f, t)
-                );
-
-                yield return null;
-            }
-
-            obj.transform.localScale = Vector3.one;
-        } */
-
-    /*     private IEnumerator SlideIn(GameObject obj)
-        {
-            RectTransform rt = obj.GetComponent<RectTransform>();
-            Vector2 targetPos = rt.anchoredPosition;
-            rt.anchoredPosition = targetPos + new Vector2(80f, 0f); // стартуем правее
-
-            float t = 0f;
-            Vector2 startPos = rt.anchoredPosition;
-            while (t < 1f)
-            {
-                t += Time.deltaTime / slideInDuration;
-                rt.anchoredPosition = Vector2.Lerp(startPos, targetPos, Mathf.SmoothStep(0f, 1f, t));
-                yield return null;
-            }
-            rt.anchoredPosition = targetPos;
-        } */
 
     private void ThrowDice(Dice dice, GameObject btn)
     {

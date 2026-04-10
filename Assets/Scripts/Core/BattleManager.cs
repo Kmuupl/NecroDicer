@@ -10,6 +10,9 @@ public class BattleManager : MonoBehaviour
     public enum BattleState { Idle, PlayerTurn, EnemyTurn, BattleEnd }
     public BattleState State { get; private set; } = BattleState.Idle;
     public Enemy CurrentEnemy { get; private set; }
+    public Enemy AttackTarget { get; private set; }
+    public Dice SelectedDice { get; private set; }
+    public int SelectedDiceValue { get; private set; }
 
     // ── События (UI подписывается на них) ───────────────
     public event Action OnBattleStart;
@@ -18,6 +21,7 @@ public class BattleManager : MonoBehaviour
     public event Action<int> OnEnemyTookDamage;
     public event Action<int> OnPlayerTookDamage;
     public event Action<bool> OnBattleEnd;
+    public event Action OnBattlefieldClear;
 
     // ── Ссылки ──────────────────────────────────────────
     [SerializeField] private CombatSystem combatSystem;
@@ -38,9 +42,15 @@ public class BattleManager : MonoBehaviour
         CurrentEnemy = enemy;
         State = BattleState.PlayerTurn;
         EnemyBattleView.Instantiate(enemy);
-        armorPanel.Init(enemy.armor);  // ← добавили
+        combatSystem.SetTarget(enemy);
+        armorPanel.Init(enemy.armor);
         OnBattleStart?.Invoke();
         StartPlayerTurn();
+    }
+    // BattleManager.cs — добавь этот метод
+    public void NotifyBattlefieldClear()
+    {
+        OnBattlefieldClear?.Invoke();
     }
 
     // ── Ход игрока ──────────────────────────────────────
@@ -48,12 +58,27 @@ public class BattleManager : MonoBehaviour
     {
         State = BattleState.PlayerTurn;
 
-        foreach (var dice in diceBag.bag.ToArray())
-            diceBag.AddToPool(dice);
-
         diceBag.DrawToTray();
         Debug.Log($"StartPlayerTurn: кубов в трее = {diceBag.tray.Count}");
         OnPlayerTurnStart?.Invoke();
+    }
+
+    public void SelectDice(Dice dice, int rolledValue)
+    {
+        SelectedDice = dice;
+        SelectedDiceValue = rolledValue;
+        Debug.Log($"Выбран куб для вставки: {dice.id}, значение: {rolledValue}");
+    }
+
+    public void ClearSelection()
+    {
+        SelectedDice = null;
+        SelectedDiceValue = 0;
+    }
+
+    public void SetAttackTarget(Enemy enemy)
+    {
+        AttackTarget = enemy;
     }
 
     // Вызывается кнопкой Attack в BattleUI
@@ -68,6 +93,7 @@ public class BattleManager : MonoBehaviour
             EndBattle(playerWon: true);
             return;
         }
+        AttackTarget = null;  // Сбрасываем цель после атаки
     }
 
     // Вызывается кнопкой End Turn в BattleUI

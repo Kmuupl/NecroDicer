@@ -26,6 +26,7 @@ public class BattlefieldPanel : MonoBehaviour
     void Start()
     {
         GenerateSlots();
+        BattleManager.Instance.OnBattlefieldClear += ClearField;
     }
 
     private IEnumerator Init()
@@ -43,6 +44,7 @@ public class BattlefieldPanel : MonoBehaviour
             BattleManager.Instance.OnPlayerTurnStart -= ClearField;
             BattleManager.Instance.OnBattleEnd -= _ => ClearField();
         }
+        BattleManager.Instance.OnBattlefieldClear -= ClearField;
     }
 
     private void GenerateSlots()
@@ -150,8 +152,8 @@ public class BattlefieldPanel : MonoBehaviour
 
     private void SelectDice(Dice dice, GameObject btn, int slotIndex)
     {
-        Debug.Log($"Выбран куб: {dice.id}, значение: {diceBag.battleFieldRolls[dice]}");
-        // TODO: передать в ArmorPanel
+        int rolledValue = diceBag.battleFieldRolls[dice];
+        BattleManager.Instance.SelectDice(dice, rolledValue);
     }
 
     public void RemoveDice(Dice dice)

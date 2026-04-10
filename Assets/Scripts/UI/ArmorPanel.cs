@@ -31,7 +31,7 @@ public class ArmorPanel : MonoBehaviour
         for (int i = 0; i < currentArmor.slots.Count; i++)
         {
             ArmorSlotView view = Instantiate(slotPrefab, slotsContainer);
-            view.Init(currentArmor.slots[i]);
+            view.Init(currentArmor.slots[i], i);
             spawnedSlots.Add(view);
         }
     }
