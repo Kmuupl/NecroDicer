@@ -12,7 +12,7 @@ public class DiceBag
     public Dictionary<Dice, int> battleFieldRolls = new(); //хранит результаты бросков кубов на поле боя
 
     // сколько кубов выдается в трей за раунд(за раунд?):
-    public int traySize = 5;
+    public int traySize = 12;
 
     //мешок:
     //добавить куб в мешок(как, решить потом):
@@ -48,13 +48,14 @@ public class DiceBag
     //случайные кубы из пула-кк в трей:
     public void DrawToTray()
     {
-        int toDraw = traySize - tray.Count;
+        int toDraw = 5;
         for (int i = 0; i < toDraw; i++)
         {
             if (pool.Count == 0)
             {
                 if (discard.Count == 0) break; // нечего перемешивать
                 ReshuffleDiscard();
+                Debug.Log("Пул пуст — сброс перемешан обратно в пул.");
             }
 
             int randomIndex = Random.Range(0, pool.Count);
@@ -90,12 +91,16 @@ public class DiceBag
         discard.AddRange(buttleField);
         buttleField.Clear();
         battleFieldRolls.Clear();
+
+        discard.AddRange(tray);
+        tray.Clear();
+
+        Debug.Log($"[EndTurn] кубы с поля боя и трея перемещены в сброс. Сброс теперь содержит {discard.Count} кубов.");
     }
 
     //со сброса в мешок:
     public void ReshuffleDiscard()
     {
-        Debug.Log("Пул пуст - сброс возвращается в пул :)");
         pool.AddRange(discard);
         discard.Clear();
     }

@@ -1,27 +1,46 @@
+using System;
 using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
     public int maxHP = 10;
     public int currentHP;
-
+    public int attackDamage = 3;
+    public int speed = 5;
     public Armor armor = new();
+    public HPBar hpBar;
+    public bool IsDead() => currentHP <= 0;
+    public EnemyData data;
+
+
 
     void Start()
     {
+        if (data != null)
+        {
+            maxHP = data.maxHP;
+            attackDamage = data.attackDamage;
+            speed = data.speed;
+
+            if (data.armorData != null)
+                armor = new Armor(data.armorData);
+            else
+                armor = new Armor(); // пустая броня на случай если не задана
+        }
+
         currentHP = maxHP;
-        SetupTestArmor(); //TEST
+        hpBar?.UpdateBar(currentHP, maxHP);
     }
+
+    public event Action<int, int> OnHPChanged; // current, max
 
     public void TakeDamage(int damage)
     {
         currentHP -= damage;
-        Debug.Log($"Враг получил {damage} урона. Текущее HP: {currentHP}/{maxHP}");
-
-        if (currentHP <= 0)
-        {
-            Die();
-        }
+        currentHP = Mathf.Max(currentHP, 0);
+        OnHPChanged?.Invoke(currentHP, maxHP);
+        if (currentHP <= 0) Die();
+        hpBar?.UpdateBar(currentHP, maxHP);
     }
 
     void Die()
@@ -30,43 +49,25 @@ public class Enemy : MonoBehaviour
         Destroy(gameObject);
     }
 
-    //тестовый метод для настройки брони врага
-    void SetupTestArmor()
+    // В Enemy.cs — замени Attack():
+    public int Attack()
     {
-        armor.slots.Add(new ArmorSlot
-        {
-            condition = new ArmorCondition
-            {
-                requiredValue = 1,
-                mustBeGreater = false
-            }
-        });
-
-        armor.slots.Add(new ArmorSlot
-        {
-            condition = new ArmorCondition
-            {
-                requiredValue = 4,
-                mustBeGreater = true
-            }
-        });
-
-        //Debug.Log("Тестовая броня врага: =1, >4.");
+        Debug.Log($"Враг атакует игрока, нанося {attackDamage} урона.");
+        return attackDamage;
     }
-    
-void Update()
-{
-    if (Input.GetMouseButtonDown(0))
-    {
-        Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        Collider2D hit = Physics2D.OverlapPoint(mousePos);
 
-        if (hit != null && hit.gameObject == gameObject)
+    void Update()
+    {
+        if (Input.GetMouseButtonDown(0))
         {
-            CombatSystem combatSystem = FindObjectOfType<CombatSystem>();
-            if (combatSystem != null)
-                combatSystem.StartBattle(this);
+            Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            Collider2D hit = Physics2D.OverlapPoint(mousePos);
+
+            // В Enemy.cs — замени внутри Update():
+            if (hit != null && hit.gameObject == gameObject)
+            {
+                BattleManager.Instance?.StartBattle(this);
+            }
         }
     }
-}
 }

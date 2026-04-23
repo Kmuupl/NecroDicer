@@ -1,19 +1,19 @@
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.Lumin;
 
 public class CombatSystem : MonoBehaviour
 {
-
+    public GameObject battlePanel; // панель с UI боя
     private Dice selectedDice = null;
     // временный урон оружия (потом заменим на реальное оружие)
-    public int weaponDamage = 10;
-
+    public Weapon weapon;
     // враг которого атакуем в этом раунде
     // null = бой ещё не начался или враг не выбран
     private Enemy targetEnemy = null;
-
     // ссылка на мешок
     private DiceBag diceBag => PlayerDiceManager.Instance.diceBag;
+    public HPBar enemyHPBar;
 
     void Update()
     {
@@ -33,8 +33,8 @@ public class CombatSystem : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Alpha3)) TryFillArmorSlot(2);
 
         // Space — атаковать (конец раунда)
-        if (Input.GetKeyDown(KeyCode.Space))
-            ResolveAttack();
+        //        if (Input.GetKeyDown(KeyCode.Space))
+        //            ResolveAttack();
 
         // Z/X/C/V/B — выбрать куб с поля боя по индексу
         if (Input.GetKeyDown(KeyCode.Z)) SelectDiceFromBattlefield(0);
@@ -44,9 +44,10 @@ public class CombatSystem : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.B)) SelectDiceFromBattlefield(4);
 
         // H — конец хода игрока → ход врага
-        if (Input.GetKeyDown(KeyCode.H))
-            PlayerEndTurn();
+        //        if (Input.GetKeyDown(KeyCode.H))
+        //            PlayerEndTurn();
     }
+
 
     // вызывается когда игрок нажимает на врага
     public void StartBattle(Enemy enemy)
@@ -58,8 +59,16 @@ public class CombatSystem : MonoBehaviour
             return;
         }
         targetEnemy = enemy;
+        battlePanel?.SetActive(true);
+        enemy.hpBar = enemyHPBar;
+        enemyHPBar?.UpdateBar(enemy.currentHP, enemy.maxHP);
         Debug.Log($"Бой начался! Враг: {enemy.name}");
         StartTurn();
+    }
+
+    public void SetTarget(Enemy enemy)
+    {
+        targetEnemy = enemy;
     }
 
     // начало хода
@@ -137,6 +146,7 @@ public class CombatSystem : MonoBehaviour
         {
             diceBag.buttleField.Remove(selectedDice);
             diceBag.battleFieldRolls.Remove(selectedDice);
+            Debug.Log($"Куб {selectedDice.id} со значением {rolledValue} вставлен в слот {slotIndex} брони врага.");
             BattleLogger.Add($"Куб {selectedDice.id} ({rolledValue}) вставлен в слот {slotIndex}.");
             BattleLogger.Add($"Заполнено слотов: {targetEnemy.armor.FilledSlotsCount()}/{targetEnemy.armor.slots.Count}");
             selectedDice = null; // сбрасываем выбор после вставки
@@ -145,41 +155,37 @@ public class CombatSystem : MonoBehaviour
 
     // атаковать — наносим урон, кубы с поля и брони в сброс
     // НО ход не заканчивается — игрок может атаковать снова
-    void ResolveAttack()
+    // В CombatSystem.cs — найди void ResolveAttack() и замени сигнатуру:
+    public int ResolveAttack()
     {
-        if (targetEnemy == null || targetEnemy.gameObject == null) return;
+        if (targetEnemy == null || targetEnemy.gameObject == null) return 0;
 
-        int damage = targetEnemy.armor.CalcDamage(weaponDamage);
-
-        BattleLogger.Add($"Атака! Заполнено {targetEnemy.armor.FilledSlotsCount()} из {targetEnemy.armor.slots.Count} слотов.");
-        BattleLogger.Add($"Урон: {damage}");
+        int weaponRoll = weapon != null ? weapon.RollDamage() : 5;
+        int damage = targetEnemy.armor.CalcDamage(weaponRoll);
+        BattleLogger.Add($"Атака! Урон оружия: {weaponRoll}. Заполнено {targetEnemy.armor.FilledSlotsCount()} из {targetEnemy.armor.slots.Count} слотов.");
 
         if (damage > 0)
+        {
             targetEnemy.TakeDamage(damage);
+        }
         else
+        {
             BattleLogger.Add("Урон не нанесён — ни один слот не заполнен.");
+            damage = 0;
+        }
 
-        // очищаем броню и поле боя после атаки
         if (targetEnemy != null && targetEnemy.currentHP > 0)
             targetEnemy.armor.ClearAll();
 
-        // кубы с поля боя → в сброс
         selectedDice = null;
         diceBag.buttleField.Clear();
+        BattleManager.Instance.NotifyBattlefieldClear();
         diceBag.battleFieldRolls.Clear();
 
+        BattleLogger.Add("Можно атаковать снова или нажать H для конца хода.");
         BattleLogger.EndTurn();
 
-        // враг умер — заканчиваем бой
-        if (targetEnemy == null || targetEnemy.gameObject == null || targetEnemy.currentHP <= 0)
-        {
-            Debug.Log("Бой окончен!");
-            targetEnemy = null;
-            return;
-        }
-
-        // враг жив — игрок может атаковать снова
-        BattleLogger.Add("Можно атаковать снова или нажать H для конца хода.");
+        return damage;
     }
 
     // конец хода — кубы с поля боя в сброс
@@ -195,8 +201,18 @@ public class CombatSystem : MonoBehaviour
             return;
         }
 
-        // TODO: здесь будет ход врага
-        Debug.Log("Ход врага... (пока пропускаем)");
+        // ход врага
+        Debug.Log("Ход врага...");
+        targetEnemy.Attack();
+
+        if (PlayerHealth.Instance == null || PlayerHealth.Instance.currentHP <= 0)
+        {
+            battlePanel?.SetActive(false);
+            Debug.Log("Игрок погиб! Бой окончен.");
+            targetEnemy = null;
+            return;
+        }
+
         StartTurn();
     }
 
@@ -217,9 +233,15 @@ public class CombatSystem : MonoBehaviour
     // конец хода игрока — передаём ход врагу
     void PlayerEndTurn()
     {
-        BattleLogger.StartTurn();
         BattleLogger.Add("Конец хода игрока.");
         BattleLogger.EndTurn();
         EndTurn();
+    }
+    public void ClearBattlefield()
+    {
+        selectedDice = null;
+        diceBag.buttleField.Clear();
+        diceBag.battleFieldRolls.Clear();
+        BattleManager.Instance.NotifyBattlefieldClear();
     }
 }

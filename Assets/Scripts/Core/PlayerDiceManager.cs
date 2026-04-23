@@ -34,11 +34,12 @@ public class PlayerDiceManager : MonoBehaviour
     //тестовый метод для старта игры, добавляет 5 белых кубов в мешок игрока:
     private void AddStartingDice()
     {
-        for (int i = 1; i <= 5; i++)
+        for (int i = 1; i <= 20; i++)
         {
             Dice dice = DiceFactory.Create(DiceType.White, $"white_0{i}");
-            AddDice(dice);
+            diceBag.AddToBag(dice);
+            diceBag.AddToPool(dice);
         }
-        Debug.Log("Стартовые кубы добавлены в мешок игрока.");
+        Debug.Log("Стартовые кубы добавлены в мешок и пул игрока.");
     }
 }
