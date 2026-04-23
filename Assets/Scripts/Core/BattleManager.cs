@@ -2,11 +2,12 @@
 using System;
 using UnityEngine;
 
+// Controls high-level battle flow and state transitions
+
 public class BattleManager : MonoBehaviour
 {
     public static BattleManager Instance { get; private set; }
 
-    // ── Стейт ──────────────────────────────────────────
     public enum BattleState { Idle, PlayerTurn, EnemyTurn, BattleEnd }
     public BattleState State { get; private set; } = BattleState.Idle;
     public Enemy CurrentEnemy { get; private set; }
@@ -14,7 +15,6 @@ public class BattleManager : MonoBehaviour
     public Dice SelectedDice { get; private set; }
     public int SelectedDiceValue { get; private set; }
 
-    // ── События (UI подписывается на них) ───────────────
     public event Action OnBattleStart;
     public event Action OnPlayerTurnStart;
     public event Action OnEnemyTurnStart;
@@ -23,7 +23,6 @@ public class BattleManager : MonoBehaviour
     public event Action<bool> OnBattleEnd;
     public event Action OnBattlefieldClear;
 
-    // ── Ссылки ──────────────────────────────────────────
     [SerializeField] private CombatSystem combatSystem;
     [SerializeField] private EnemyBattleView enemyBattleView;
     [SerializeField] private ArmorPanel armorPanel;  // ← добавили
@@ -35,7 +34,6 @@ public class BattleManager : MonoBehaviour
         Instance = this;
     }
 
-    // ── Запуск боя ──────────────────────────────────────
     public void StartBattle(Enemy enemy)
     {
         if (State != BattleState.Idle) return;
@@ -47,19 +45,18 @@ public class BattleManager : MonoBehaviour
         OnBattleStart?.Invoke();
         StartPlayerTurn();
     }
-    // BattleManager.cs — добавь этот метод
+
     public void NotifyBattlefieldClear()
     {
         OnBattlefieldClear?.Invoke();
     }
 
-    // ── Ход игрока ──────────────────────────────────────
     private void StartPlayerTurn()
     {
         State = BattleState.PlayerTurn;
 
         diceBag.DrawToTray();
-        Debug.Log($"StartPlayerTurn: кубов в трее = {diceBag.tray.Count}");
+        Debug.Log($"Player turn started. Dice in tray: {diceBag.tray.Count}");;
         OnPlayerTurnStart?.Invoke();
     }
 
@@ -67,7 +64,7 @@ public class BattleManager : MonoBehaviour
     {
         SelectedDice = dice;
         SelectedDiceValue = rolledValue;
-        Debug.Log($"Выбран куб для вставки: {dice.id}, значение: {rolledValue}");
+        Debug.Log($"Player selected dice: {dice.id}, value: {rolledValue}");
     }
 
     public void ClearSelection()
@@ -81,7 +78,6 @@ public class BattleManager : MonoBehaviour
         AttackTarget = enemy;
     }
 
-    // Вызывается кнопкой Attack в BattleUI
     public void PlayerAttack()
     {
         if (State != BattleState.PlayerTurn) return;
@@ -93,10 +89,9 @@ public class BattleManager : MonoBehaviour
             EndBattle(playerWon: true);
             return;
         }
-        AttackTarget = null;  // Сбрасываем цель после атаки
+        AttackTarget = null;
     }
 
-    // Вызывается кнопкой End Turn в BattleUI
     public void PlayerEndTurn()
     {
         if (State != BattleState.PlayerTurn) return;
@@ -104,7 +99,6 @@ public class BattleManager : MonoBehaviour
         StartEnemyTurn();
     }
 
-    // ── Ход врага ───────────────────────────────────────
     private void StartEnemyTurn()
     {
         State = BattleState.EnemyTurn;
@@ -123,12 +117,11 @@ public class BattleManager : MonoBehaviour
         StartPlayerTurn();
     }
 
-    // ── Конец боя ───────────────────────────────────────
     private void EndBattle(bool playerWon)
     {
         State = BattleState.BattleEnd;
         enemyBattleView.Cleanup();
-        armorPanel.Init(null);  // ← чистим панель после боя
+        armorPanel.Init(null);
         OnBattleEnd?.Invoke(playerWon);
         CurrentEnemy = null;
         State = BattleState.Idle;
