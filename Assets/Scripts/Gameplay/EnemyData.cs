@@ -9,6 +9,7 @@ public class EnemyData : ScriptableObject
     public int maxHP;
     public int attackDamage;
     public int speed;
-    // броня добавим отдельно
     public ArmorData armorData;
+    public DiceType[] dicePool;
+    public int dicePoolSize = 5;
 }

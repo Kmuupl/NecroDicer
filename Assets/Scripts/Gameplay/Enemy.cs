@@ -11,8 +11,7 @@ public class Enemy : MonoBehaviour
     public HPBar hpBar;
     public bool IsDead() => currentHP <= 0;
     public EnemyData data;
-
-
+    public EnemyBattleAI ai = new EnemyBattleAI();
 
     void Start()
     {
@@ -25,7 +24,9 @@ public class Enemy : MonoBehaviour
             if (data.armorData != null)
                 armor = new Armor(data.armorData);
             else
-                armor = new Armor(); // пустая броня на случай если не задана
+                armor = new Armor();
+
+            ai.Init(data); // ← добавить
         }
 
         currentHP = maxHP;

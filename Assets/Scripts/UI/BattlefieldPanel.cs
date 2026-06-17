@@ -5,6 +5,7 @@ using System.Collections.Generic;
 
 public class BattlefieldPanel : MonoBehaviour
 {
+    public static BattlefieldPanel Instance { get; private set; }
     [SerializeField] private GameObject diceButtonPrefab;
     [SerializeField] private float throwDuration = 0.4f;
     [SerializeField] private int maxDice = 10;
@@ -18,33 +19,44 @@ public class BattlefieldPanel : MonoBehaviour
     private List<Vector2> slots = new();
     private Dictionary<int, Dice> slotOccupied = new(); // индекс слота → куб
 
+    private System.Action<bool> onBattleEnd;
     /*     void Awake()
         {
             GenerateSlots();
+
         } */
 
     void Start()
     {
         GenerateSlots();
         BattleManager.Instance.OnBattlefieldClear += ClearField;
+        BattleManager.Instance.OnPlayerTurnStart += ClearField;
+        onBattleEnd = (_) => ClearField();
+        BattleManager.Instance.OnBattleEnd += onBattleEnd;
     }
 
-    private IEnumerator Init()
-    {
-        yield return null; // ждём один кадр — Canvas успевает посчитать размеры
-        GenerateSlots();
-        BattleManager.Instance.OnPlayerTurnStart += ClearField;
-        BattleManager.Instance.OnBattleEnd += _ => ClearField();
-    }
+    // private IEnumerator Init()
+    // {
+    //     yield return null; // ждём один кадр — Canvas успевает посчитать размеры
+    //     GenerateSlots();
+    //     BattleManager.Instance.OnPlayerTurnStart += ClearField;
+    //     BattleManager.Instance.OnBattleEnd += _ => ClearField();
+    // }
 
     void OnDestroy()
     {
         if (BattleManager.Instance != null)
         {
             BattleManager.Instance.OnPlayerTurnStart -= ClearField;
-            BattleManager.Instance.OnBattleEnd -= _ => ClearField();
+            BattleManager.Instance.OnBattleEnd -= onBattleEnd;
+            BattleManager.Instance.OnBattlefieldClear -= ClearField;
         }
-        BattleManager.Instance.OnBattlefieldClear -= ClearField;
+        // BattleManager.Instance.OnBattlefieldClear -= ClearField;
+    }
+
+    private void Awake()
+    {
+        Instance = this;
     }
 
     private void GenerateSlots()

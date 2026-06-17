@@ -1,44 +1,53 @@
-using System.Collections.Generic;
+using Unity.Burst.Intrinsics;
 using UnityEngine;
 
 public class ArmorPanel : MonoBehaviour
 {
-    [SerializeField] private ArmorSlotView slotPrefab;
-    [SerializeField] private Transform slotsContainer;
+    [SerializeField] private ArmorDisplay armorPanel_1;
+    [SerializeField] private ArmorDisplay armorPanel_2;
+    [SerializeField] private ArmorDisplay armorPanel_3;
+    [SerializeField] private ArmorDisplay armorPanel_4;
+
+    private ArmorDisplay currentDisplay;
     private Armor currentArmor;
-    private List<ArmorSlotView> spawnedSlots = new();
+
     public void Init(Armor armor)
     {
-        // чистим слоты в любом случае
-        foreach (var slot in spawnedSlots)
-            Destroy(slot.gameObject);
-        spawnedSlots.Clear();
-
-        currentArmor = armor;
-
-        // если броня null — просто очищаем панель
+        if (currentDisplay != null)
+        {
+            Destroy(currentDisplay.gameObject);
+        }
         if (armor == null) return;
-
-        SpawnSlots();
-    }
-    private void SpawnSlots()
-    {
-        foreach (var slot in spawnedSlots)
+        currentArmor = armor;
+        ArmorDisplay displayPrefab = GetPrefabForSlotCount(armor.slots.Count);
+        if (displayPrefab == null)
         {
-            Destroy(slot.gameObject);
+            Debug.LogError($"Нет подходящего префаба для брони с {armor.slots.Count} слотами!");
+            return;
         }
-        spawnedSlots.Clear();
-        for (int i = 0; i < currentArmor.slots.Count; i++)
-        {
-            ArmorSlotView view = Instantiate(slotPrefab, slotsContainer);
-            view.Init(currentArmor.slots[i], i);
-            spawnedSlots.Add(view);
-        }
-    }
-    public ArmorSlotView GetSlotView(int index)
-    {
-        if (index < 0 || index >= spawnedSlots.Count) return null;
-        return spawnedSlots[index];
+        currentDisplay = Instantiate(displayPrefab, transform);
+        currentDisplay.Init(armor);
     }
 
+    private ArmorDisplay GetPrefabForSlotCount(int count)
+    {
+        return count switch
+        {
+            1 => armorPanel_1,
+            2 => armorPanel_2,
+            3 => armorPanel_3,
+            4 => armorPanel_4,
+            _ => null
+        };
+    }
+
+    public void IfDicePlaced(int slotIndex)
+    {
+        currentDisplay?.OnDicePlaced(slotIndex);
+    }
+
+    public void IfSlotCleared(int slotIndex)
+    {
+        currentDisplay?.OnSlotCleared(slotIndex);
+    }
 }

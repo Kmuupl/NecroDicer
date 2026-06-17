@@ -1,5 +1,6 @@
 // Core/BattleManager.cs
 using System;
+using System.Collections;
 using UnityEngine;
 
 // Controls high-level battle flow and state transitions
@@ -25,7 +26,8 @@ public class BattleManager : MonoBehaviour
 
     [SerializeField] private CombatSystem combatSystem;
     [SerializeField] private EnemyBattleView enemyBattleView;
-    [SerializeField] private ArmorPanel armorPanel;  // ← добавили
+    [SerializeField] private ArmorPanel armorPanel;
+    [SerializeField] private ArmorPanel playerArmorPanel;
     private DiceBag diceBag => PlayerDiceManager.Instance.diceBag;
 
     void Awake()
@@ -42,6 +44,7 @@ public class BattleManager : MonoBehaviour
         EnemyBattleView.Instantiate(enemy);
         combatSystem.SetTarget(enemy);
         armorPanel.Init(enemy.armor);
+        playerArmorPanel.Init(PlayerCombat.Instance.armor);
         OnBattleStart?.Invoke();
         StartPlayerTurn();
     }
@@ -55,8 +58,10 @@ public class BattleManager : MonoBehaviour
     {
         State = BattleState.PlayerTurn;
 
+        PlayerCombat.Instance.ClearArmor();
+
         diceBag.DrawToTray();
-        Debug.Log($"Player turn started. Dice in tray: {diceBag.tray.Count}");;
+        Debug.Log($"Player turn started. Dice in tray: {diceBag.tray.Count}"); ;
         OnPlayerTurnStart?.Invoke();
     }
 
@@ -103,18 +108,27 @@ public class BattleManager : MonoBehaviour
     {
         State = BattleState.EnemyTurn;
         OnEnemyTurnStart?.Invoke();
+        StartCoroutine(EnemyTurnRoutine());
 
+
+
+
+    }
+
+    private IEnumerator EnemyTurnRoutine()
+    {
+        yield return StartCoroutine(CurrentEnemy.ai.DoTurn(0.6f, null));
         int dmg = CurrentEnemy.Attack();
-        PlayerHealth.Instance.TakeDamage(dmg);
+        PlayerCombat.Instance.TakeDamage(dmg);
         OnPlayerTookDamage?.Invoke(dmg);
-
         if (PlayerHealth.Instance.IsDead())
         {
             EndBattle(playerWon: false);
-            return;
+            yield break;
         }
 
         StartPlayerTurn();
+
     }
 
     private void EndBattle(bool playerWon)

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: TestEnemy
   m_EditorClassIdentifier: Assembly-CSharp::EnemyData
   enemyName: Obdolbysz
-  battleSprite: {fileID: 0}
+  battleSprite: {fileID: -835154295696425961, guid: c6b9a244b7c8c4649889a77772e1750a, type: 3}
   maxHP: 20
   attackDamage: 3
   speed: 1

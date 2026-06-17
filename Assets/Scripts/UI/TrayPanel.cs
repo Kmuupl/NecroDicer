@@ -37,7 +37,7 @@ public class TrayPanel : MonoBehaviour
 
     private IEnumerator SpawnDice()
     {
-        foreach (var dice in diceBag.tray)
+        foreach (var dice in new List<Dice>(diceBag.tray))
         {
             var btn = Instantiate(diceButtonPrefab, transform);
 
